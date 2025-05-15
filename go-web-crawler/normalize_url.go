@@ -1,29 +1,33 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"net/url"
 	"strings"
 )
 
 func normalizeURL(urlString string) (string, error) {
 	if urlString == "" {
-		return "", fmt.Errorf("empty string")
+		return "", errors.New("empty string")
 	}
 
 	parsedURL, err := url.Parse(urlString)
 	if err != nil {
-		return "", fmt.Errorf("could not parse URL: %w", err)
+		return "", errors.New("could not parse URL: " + err.Error())
 	}
 
 	scheme := parsedURL.Scheme
 	if scheme != "http" && scheme != "https" {
-		return "", fmt.Errorf("disallowed scheme: %s", scheme)
+		return "", errors.New("disallowed scheme: " + scheme)
 	}
 
 	path := parsedURL.Path
 	for strings.HasSuffix(path, "/") {
 		path = strings.TrimSuffix(path, "/")
+	}
+
+	if path == "" {
+		return strings.ToLower(parsedURL.Host), nil
 	}
 
 	return strings.ToLower(parsedURL.Host + path), nil
