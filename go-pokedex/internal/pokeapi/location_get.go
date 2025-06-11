@@ -8,45 +8,44 @@ import (
 	"net/http"
 )
 
-func (c *Client) ListLocations(pageUrl *string) (LocationAreasResponse, error) {
-	url := fmt.Sprintf("%s/location-area", baseURL)
-	if pageUrl != nil {
-		url = *pageUrl
-	}
+func (c *Client) GetLocation(locationName string) (Location, error) {
+	url := fmt.Sprintf("%s/location-area/%s", baseURL, locationName)
 
 	if val, exists := c.cache.Get(url); exists {
-		locationRes := LocationAreasResponse{}
+		var locationRes = Location{}
 		err := json.Unmarshal(val, &locationRes)
 		if err != nil {
-			return LocationAreasResponse{}, err
+			return Location{}, err
 		}
 		return locationRes, nil
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return LocationAreasResponse{}, err
+		return Location{}, err
 	}
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return LocationAreasResponse{}, err
+		return Location{}, err
 	}
+
 	defer res.Body.Close()
 	if res.StatusCode > 299 {
-		return LocationAreasResponse{}, errors.New("invalid request")
+		return Location{}, errors.New("invalid locationName")
 	}
 
 	dat, err := io.ReadAll(res.Body)
 	if err != nil {
-		return LocationAreasResponse{}, err
+		return Location{}, err
 	}
 
-	locationRes := LocationAreasResponse{}
+	locationRes := Location{}
 	err = json.Unmarshal(dat, &locationRes)
 	if err != nil {
-		return LocationAreasResponse{}, err
+		return Location{}, nil
 	}
 
+	c.cache.Add(url, dat)
 	return locationRes, nil
 }
