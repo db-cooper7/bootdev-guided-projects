@@ -4,15 +4,23 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/db-cooper7/bootdev-guided-projects/go-pokedex/internal/pokeapi"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(cfg *config) error
 }
 
-func startREPL() {
+type config struct {
+	pokeapiClient   pokeapi.Client
+	nextLocationURL *string
+	prevLocationURL *string
+}
+
+func startREPL(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
@@ -26,7 +34,7 @@ func startREPL() {
 			fmt.Println("invalid command")
 			continue
 		}
-		err := cmd.callback()
+		err := cmd.callback(cfg)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -44,6 +52,16 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Displays the next 20 locations in the pokemon world",
+			callback:    commandMapNext,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays the previous 20 locations in the pokemon world",
+			callback:    commandMapPrev,
 		},
 	}
 }
