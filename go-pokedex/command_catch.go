@@ -28,6 +28,7 @@ func commandCatch(cfg *config, args ...string) error {
 	if randomRoll < catchPercentage {
 		cfg.pokemonsCaught[pokemon.Name] = pokemon
 		fmt.Printf("%s was caught!\n", pokemon.Name)
+		fmt.Println("You may now inspect it with the inspect command")
 		return nil
 	}
 
