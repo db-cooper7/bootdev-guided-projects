@@ -1,16 +1,52 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/db-cooper7/bootdev-guided-projects/go-rss-aggregator/internal/database"
+	"github.com/google/uuid"
+)
 
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <name>", cmd.Name)
 	}
-	username := cmd.Args[0]
-	err := s.cfg.SetUser(username)
+
+	_, err := s.db.GetUser(context.Background(), cmd.Args[0])
 	if err != nil {
-		return fmt.Errorf("could not set the username: %w", err)
+		return fmt.Errorf("could not find the user: %w", err)
 	}
-	fmt.Printf("The username has been set: %s\n", s.cfg.CurrentUserName)
+	if err = s.cfg.SetUser(cmd.Args[0]); err != nil {
+		return fmt.Errorf("could not set current user: %w", err)
+	}
+
+	fmt.Println("User set successfully")
+	return nil
+}
+
+func handlerRegister(s *state, cmd command) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %v <name>", cmd.Name)
+	}
+
+	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		Name:      cmd.Args[0],
+	})
+
+	if err != nil {
+		return fmt.Errorf("could not create user: %w", err)
+	}
+
+	err = s.cfg.SetUser(user.Name)
+	if err != nil {
+		return fmt.Errorf("could not set user: %w", err)
+	}
+
+	fmt.Printf("User created successfully:\n%v\n", user)
 	return nil
 }
