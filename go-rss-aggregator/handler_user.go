@@ -51,15 +51,23 @@ func handlerRegister(s *state, cmd command) error {
 	return nil
 }
 
-func handlerReset(s *state, cmd command) error {
+func handlerGetUsers(s *state, cmd command) error {
 	if len(cmd.Args) != 0 {
 		return fmt.Errorf("usage: %v", cmd.Name)
 	}
 
-	if err := s.db.Reset(context.Background()); err != nil {
-		return fmt.Errorf("could not reset users table: %w", err)
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("could not get users: %w", err)
 	}
 
-	fmt.Println("Database reset successfully")
+	for _, user := range users {
+		if user.Name != s.cfg.CurrentUserName {
+			fmt.Printf("* %s\n", user.Name)
+		} else {
+			fmt.Printf("* %s (current)\n", user.Name)
+		}
+	}
+
 	return nil
 }
