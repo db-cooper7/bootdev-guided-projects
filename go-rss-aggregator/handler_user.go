@@ -47,7 +47,8 @@ func handlerRegister(s *state, cmd command) error {
 		return fmt.Errorf("could not set user: %w", err)
 	}
 
-	fmt.Printf("User created successfully:\n%v\n", user)
+	fmt.Println("User created successfully:")
+	printUser(user)
 	return nil
 }
 
@@ -70,4 +71,9 @@ func handlerGetUsers(s *state, cmd command) error {
 	}
 
 	return nil
+}
+
+func printUser(user database.User) {
+	fmt.Printf("- ID:      %v\n", user.ID)
+	fmt.Printf("- Name:    %v\n", user.Name)
 }
