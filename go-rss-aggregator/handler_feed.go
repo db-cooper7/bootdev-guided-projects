@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/db-cooper7/bootdev-guided-projects/go-rss-aggregator/internal/database"
@@ -13,13 +14,11 @@ func handlerAddFeed(s *state, cmd command) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
 	}
-	/*
-		if len(cmd.Args[0]) == "" {
-			...
-		}
 
-		TODO: Is this something I should check for??
-	*/
+	if strings.TrimSpace(cmd.Args[0]) == "" || strings.TrimSpace(cmd.Args[1]) == "" {
+		return fmt.Errorf("name and url cannot be empty")
+	}
+
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
 	if err != nil {
 		return err
