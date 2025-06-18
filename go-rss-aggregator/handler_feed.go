@@ -16,7 +16,7 @@ func handlerAddFeed(s *state, cmd command) error {
 	}
 
 	if strings.TrimSpace(cmd.Args[0]) == "" || strings.TrimSpace(cmd.Args[1]) == "" {
-		return fmt.Errorf("name and url cannot be empty")
+		return fmt.Errorf("command name and url cannot be empty")
 	}
 
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
@@ -32,12 +32,28 @@ func handlerAddFeed(s *state, cmd command) error {
 		Url:       cmd.Args[1],
 		UserID:    user.ID,
 	})
+
 	if err != nil {
 		return fmt.Errorf("could not create feed: %w", err)
 	}
 
+	feedFollow, err := s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("could not create feed follow %w", err)
+	}
+
 	fmt.Println("Feed created successfully:")
 	printFeed(feed)
+	fmt.Printf("\nFeed follow created successfully:\n")
+	printFeedFollow(feedFollow.UserName, feedFollow.FeedName)
+	fmt.Println()
 	return nil
 }
 

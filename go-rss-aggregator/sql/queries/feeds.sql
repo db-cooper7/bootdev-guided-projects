@@ -10,3 +10,8 @@ SELECT f.name,
 FROM feeds f
 INNER JOIN users u
 ON f.user_id = u.id;
+
+-- name: GetFeedIDByURL :one
+SELECT id
+FROM feeds
+WHERE url = $1;
