@@ -10,18 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.Name)
 	}
 
 	if strings.TrimSpace(cmd.Args[0]) == "" || strings.TrimSpace(cmd.Args[1]) == "" {
 		return fmt.Errorf("command name and url cannot be empty")
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
 	}
 
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
