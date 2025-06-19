@@ -8,7 +8,7 @@ Make sure you have the latest [Go toolchain](https://golang.org/dl/) installed a
 You can then install `gator` with:
 
 ```bash
-go install https://github.com/db-cooper7/bootdev-guided-projects/tree/main/go-rss-aggregator
+go install https://github.com/db-cooper7/bootdev-guided-projects/go-rss-aggregator
 ```
 
 ## Config
